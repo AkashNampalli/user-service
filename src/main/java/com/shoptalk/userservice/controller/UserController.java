@@ -1,0 +1,45 @@
+package com.shoptalk.userservice.controller;
+
+import com.shoptalk.userservice.entity.User;
+import com.shoptalk.userservice.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<User> register(@RequestBody User user){
+        User savedUser = userService.registerUser(user); // hash + save
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser); // return 201 created status code.
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<User>  getUser(@PathVariable UUID id){
+
+        Optional<User> user = userService.findById(id);
+        // 200 with user body
+        // 404 empty body
+        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+
+    }
+    @GetMapping("/email/{email}")
+    public ResponseEntity<User>  getUserByEmail(@PathVariable String email){
+        Optional<User> user = userService.findByEmail(email);
+        // 200 with user body
+        // 404 empty body
+        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+
+}
