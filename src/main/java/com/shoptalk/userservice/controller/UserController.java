@@ -1,7 +1,9 @@
 package com.shoptalk.userservice.controller;
 
-import com.shoptalk.userservice.entity.User;
+import com.shoptalk.userservice.dto.RegisterRequest;
+import com.shoptalk.userservice.dto.UserResponse;
 import com.shoptalk.userservice.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,25 +22,25 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user){
-        User savedUser = userService.registerUser(user); // hash + save
+    public ResponseEntity<UserResponse> register(
+            @Valid @RequestBody RegisterRequest request){
+        UserResponse savedUser = userService.registerUser(request); // hash + save
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser); // return 201 created status code.
     }
     @GetMapping("/{id}")
-    public ResponseEntity<User>  getUser(@PathVariable UUID id){
+    public ResponseEntity<UserResponse>  getUser(@PathVariable UUID id){
 
-        Optional<User> user = userService.findById(id);
+
         // 200 with user body
         // 404 empty body
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(userService.findById(id));
 
     }
     @GetMapping("/email/{email}")
-    public ResponseEntity<User>  getUserByEmail(@PathVariable String email){
-        Optional<User> user = userService.findByEmail(email);
+    public ResponseEntity<UserResponse>  getUserByEmail(@PathVariable String email){
         // 200 with user body
         // 404 empty body
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(userService.findByEmail(email));
     }
 
 
